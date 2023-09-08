@@ -16,6 +16,7 @@ import (
 type SearchDB interface {
 	CreateObjects() error
 	SearchObject(searchWord string) ([]model.Object, error)
+	ShowObject(objectID string)(model.Object,error)
 }
 
 type searchDB struct {
@@ -61,6 +62,20 @@ func (s *searchDB) SearchObject(searchword string) ([]model.Object, error) {
 	}
 	return objects, nil
 }
+
+func(s *searchDB)ShowObject(ObjectID string)(model.Object,error){
+	objectId,err:=primitive.ObjectIDFromHex(ObjectID)
+	var object model.Object
+	if err!=nil{
+		log.Fatal(err)
+	}
+	collection:=s.Mgr.Connection.Database("new_global_search").Collection("new_search_objects")
+	query:=bson.M{"_id":objectId}
+	resErr:=collection.FindOne(context.TODO(),query).Decode(&object)
+	return object,resErr
+	
+}
+
 func GenerateObj() model.Object {
 
 	objID := primitive.NewObjectID()
